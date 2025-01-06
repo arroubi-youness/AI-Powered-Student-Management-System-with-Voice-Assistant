@@ -1,5 +1,10 @@
 from customtkinter import *
 from PIL import Image
+import sqlite3
+import face_recognition
+import numpy as np
+import cv2
+
 
 def on_enter_cam(event):
     event.widget.configure( height=38,width=48)
@@ -12,6 +17,109 @@ def on_enter(event):
 
 def on_leave(event):
     event.widget.configure(font=("", 12))
+
+
+def login_user(email, password):
+    conn = sqlite3.connect("../register/users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None
+
+def handle_login():
+    email = usrname_entry.get()
+    password = passwd_entry.get()
+
+    if not email or not password:
+        print("Veuillez remplir tous les champs.")
+        return
+
+    if login_user(email, password):
+        print("Connexion réussie !")
+    else:
+        print("Identifiants incorrects.")
+
+
+def handle_camera_login():
+    # Charger les images et les encodages depuis la base de données
+    conn = sqlite3.connect("../register/users.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT username, image FROM users")
+    users = cursor.fetchall()
+    conn.close()
+
+    print(f"{len(users)} utilisateurs chargés depuis la base de données.")
+
+    known_face_encodings = []
+    known_face_names = []
+
+    for user in users:
+        username, image_blob = user
+        try:
+            # Convertir l'image BLOB en tableau numpy
+            face_encoding = np.frombuffer(image_blob, dtype=np.float32)
+            known_face_encodings.append(face_encoding)
+            known_face_names.append(username)
+        except Exception as e:
+            print(f"Erreur lors du traitement de l'utilisateur {username}: {e}")
+
+    if not known_face_encodings:
+        print("Aucun visage valide trouvé dans la base de données.")
+        return
+
+    # Capturer une image à partir de la webcam
+    video_capture = cv2.VideoCapture(0)
+    if not video_capture.isOpened():
+        print("Erreur : Impossible d'accéder à la webcam.")
+        return
+
+    while True:
+        ret, frame = video_capture.read()
+        if not ret:
+            print("Erreur : Impossible de capturer une image depuis la webcam.")
+            break
+
+        # Dessiner un cadre vert autour de la zone de détection
+        cv2.rectangle(frame, (100, 100), (500, 400), (0, 255, 0), 2)
+        cv2.putText(frame, "Appuyez sur 's' pour valider ou 'q' pour quitter", (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        # Trouver tous les visages dans l'image capturée
+        face_locations = face_recognition.face_locations(frame)
+        face_encodings = face_recognition.face_encodings(frame, face_locations)
+
+        name = "Unknown"
+        probability = 0.0
+
+        if len(face_encodings) > 0:
+            matches = face_recognition.compare_faces(known_face_encodings, face_encodings[0])
+            face_distances = face_recognition.face_distance(known_face_encodings, face_encodings[0])
+            best_match_index = np.argmin(face_distances)
+
+            if matches[best_match_index]:
+                name = known_face_names[best_match_index]
+                probability = 1 - face_distances[best_match_index]
+
+        # Afficher le nom et la probabilité
+        cv2.putText(frame, f"Nom: {name}", (100, 420), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        cv2.putText(frame, f"Probabilite: {probability:.2f}", (100, 460), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+
+        cv2.imshow("Reconnaissance Faciale", frame)
+
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('s'):
+            if name != "Unknown":
+                print(f"Connexion réussie ! Bienvenue, {name}.")
+            else:
+                print("Aucun visage reconnu.")
+            break
+        if key == ord('q'):
+            print("Reconnaissance faciale annulée.")
+            break
+
+    video_capture.release()
+    cv2.destroyAllWindows()
+
 
 main = CTk()
 main.title("Login Page")
@@ -34,10 +142,6 @@ frame1 = CTkFrame(
     corner_radius=40
 )
 frame1.place(relx=0.52, rely=0, relwidth=0.6, relheight=1)
-#
-#
-# bg_label = CTkLabel(frame1, image=bg_imgg, text="")
-# bg_label.place(relx=0, rely=-0.02, relwidth=1, relheight=1)
 
 
 title = CTkLabel(frame1, text="Welcome Back!  ", bg_color="#33aef4",text_color="white", font=("", 30, "bold"))
@@ -99,6 +203,7 @@ l_btn = CTkButton(
     bg_color="#33aef4",
     text_color="#33aef4",
     hover_color="white",
+    command=handle_login
 )
 l_btn.place( x=70, y=330)
 
@@ -114,7 +219,8 @@ l_btn_cam = CTkButton(
     bg_color="#33aef4",
     height=40,
     hover_color="#33aef4",
-    width=50
+    width=50,
+    command=handle_camera_login
 )
 l_btn_cam.place(x=312, y=324)
 

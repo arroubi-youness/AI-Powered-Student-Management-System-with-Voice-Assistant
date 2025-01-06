@@ -1,28 +1,132 @@
 from customtkinter import *
 from PIL import Image, ImageTk
 from tkinter import filedialog
+import sqlite3
+import face_recognition
+import numpy as np
 
+
+
+def create_db():
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL,
+        email TEXT NOT NULL,
+        password TEXT NOT NULL,
+        image BLOB
+    )
+    ''')
+    conn.commit()
+    conn.close()
+
+
+def register_user(username, email, password, image_path=None):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+    face_encoding = None
+    if image_path:
+        face_encoding = encode_face(image_path)
+        if face_encoding is None:
+            print("Aucun visage détecté dans l'image. Veuillez réessayer.")
+            conn.close()
+            return
+
+
+    face_encoding_blob = sqlite3.Binary(np.array(face_encoding, dtype=np.float32).tobytes())
+
+    cursor.execute('''
+    INSERT INTO users (username, email, password, image) VALUES (?, ?, ?, ?)
+    ''', (username, email, password, face_encoding_blob))
+
+    conn.commit()
+    conn.close()
+    print("Utilisateur enregistré avec succès.")
+
+def is_student_registered(image_path):
+    conn = sqlite3.connect("users.db")
+    cursor = conn.cursor()
+
+
+    new_face_encoding = encode_face(image_path)
+    if new_face_encoding is None:
+        print("Aucun visage détecté dans l'image. Veuillez réessayer.")
+        conn.close()
+        return False
+
+
+    cursor.execute("SELECT image FROM users")
+    rows = cursor.fetchall()
+
+    for row in rows:
+        stored_encoding = np.frombuffer(row[0], dtype=np.float32)
+        match = face_recognition.compare_faces([stored_encoding], new_face_encoding)
+        if match[0]:
+            conn.close()
+            return True  # Visage trouvé
+
+    conn.close()
+    return False
+
+
+def encode_face(image_path):
+
+    image = face_recognition.load_image_file(image_path)
+    face_encodings = face_recognition.face_encodings(image)
+
+    if face_encodings:
+        return face_encodings[0]
+    else:
+        return None
+
+
+
+create_db()
+def sign_up():
+    global uploaded_image_path
+    username = usrname_entry.get()
+    email = email_entry.get()
+    password = passwd_entry.get()
+    password_confirm = passwd_entry_confirm.get()
+
+
+    if password != password_confirm:
+        print("Les mots de passe ne correspondent pas.")
+        return
+
+
+    if not uploaded_image_path:
+        print("Veuillez télécharger une image.")
+        return
+
+
+    if is_student_registered(uploaded_image_path):
+        print("Cet étudiant est déjà enregistré.")
+    else:
+
+        register_user(username, email, password, image_path=uploaded_image_path)
+
+
+uploaded_image_path = None
 
 def upload_image(image_label):
-
+    global uploaded_image_path
     file_path = filedialog.askopenfilename(
-        filetypes=[
-            ("Image files", "*.png *.jpg *.jpeg *.gif *.bmp *.ppm *.pgm")
-        ]
+        filetypes=[("Image files", "*.png *.jpg *.jpeg *.gif *.bmp *.ppm *.pgm")]
     )
-
     if file_path:
-         image = Image.open(file_path)
-         image.thumbnail((110, 110))
+        uploaded_image_path = file_path
+        image = Image.open(file_path)
+        image.thumbnail((110, 110))
 
-         ctk_image = CTkImage(
-            light_image=image,
-            dark_image=image,
-            size=image.size
-        )
-
-         image_label.configure(image=ctk_image, text="")
-         image_label.image = ctk_image
+        ctk_image = CTkImage(light_image=image, dark_image=image, size=image.size)
+        image_label.configure(image=ctk_image, text="")
+        image_label.image = ctk_image
 
 
 
@@ -95,7 +199,6 @@ email_entry = CTkEntry(
     width=330,
     corner_radius=10,
     height=40,
-    show="*",
     bg_color="#33aef4",
     border_color="white"
 
@@ -169,7 +272,8 @@ register_button = CTkButton(
     corner_radius=12,
     font=("",15,"bold"),
     hover_color="white",
-    cursor="hand2"
+    cursor="hand2",
+    command=sign_up
 )
 register_button.place(x=55,y=500)
 main.mainloop()
