@@ -115,17 +115,21 @@ bg_img_logout=ctk.CTkImage(dark_image=Image.open("menu_icon/log-out-circle-regul
 
 
 # Position fixe pour chaque bouton
-student_button = ctk.CTkButton(menu_frame, text="Presence", command=on_student_click, font=("Helvetica", 14, "bold"), width=200, anchor="w",height=40, corner_radius= 10,fg_color= "transparent",text_color="white",image=bg_img_user,compound=tkinter.LEFT)
-student_button.place(x=65, y=370)
+student_button = ctk.CTkButton(menu_frame, text="Profs Management", command=on_student_click, font=("Helvetica", 14, "bold"), width=200, anchor="w",height=40, corner_radius= 10,fg_color= "transparent",text_color="white",image=bg_img_user,compound=tkinter.LEFT)
+student_button.place(x=65, y=350)
 course_button = ctk.CTkButton(menu_frame, text="Voice Assitant", command=on_course_click, **button_style,image=bg_img_book,compound=tkinter.LEFT)
-course_button.place(x=65, y=310)   # Position (x=35, y=250)
+course_button.place(x=65, y=470)    # Position (x=35, y=250)
  # Position (x=35, y=310)
 
 schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=on_schedule_click, **button_style,image=bg_img_time,compound=tkinter.LEFT)
-schedule_button.place(x=65, y=250) # Position (x=35, y=370)
+schedule_button.place(x=65, y=410)# Position (x=35, y=370)
 
-grades_button = ctk.CTkButton(menu_frame, text="Notes", command=on_grades_click, **button_style,image=bg_img_notes,compound=tkinter.LEFT)
-grades_button.place(x=65, y=430)# Position (x=35, y=430)
+schedule_button = ctk.CTkButton(menu_frame, text="Validation des comptes", command=on_schedule_click, **button_style,image=bg_img_time,compound=tkinter.LEFT)
+schedule_button.place(x=65, y=230)
+
+
+grades_button = ctk.CTkButton(menu_frame, text="Student Management", command=on_grades_click, **button_style,image=bg_img_notes,compound=tkinter.LEFT)
+grades_button.place(x=65, y=290)# Position (x=35, y=430)
 
   # Position (x=35, y=490)
 

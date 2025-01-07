@@ -29,6 +29,10 @@ def on_grades_click():
     content_label = ctk.CTkLabel(content_frame, text="Gestion des notes", font=("Helvetica", 16))
     content_label.place(relx=0.5, rely=0.5, anchor="center")
 
+
+
+
+
 def on_messages_click():
     clear_content()
     content_label = ctk.CTkLabel(content_frame, text="Gestion des messages", font=("Helvetica", 16))
@@ -112,19 +116,18 @@ bg_img_logout=ctk.CTkImage(dark_image=Image.open("menu_icon/log-out-circle-regul
 
 # Position fixe pour chaque bouton
 student_button = ctk.CTkButton(menu_frame, text="Presence", command=on_student_click, font=("Helvetica", 14, "bold"), width=200, anchor="w",height=40, corner_radius= 10,fg_color= "transparent",text_color="white",image=bg_img_user,compound=tkinter.LEFT)
-student_button.place(x=65, y=405)
+student_button.place(x=65, y=370)
 course_button = ctk.CTkButton(menu_frame, text="Voice Assitant", command=on_course_click, **button_style,image=bg_img_book,compound=tkinter.LEFT)
-course_button.place(x=65, y=345)   # Position (x=35, y=250)
+course_button.place(x=65, y=310)   # Position (x=35, y=250)
  # Position (x=35, y=310)
 
 schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=on_schedule_click, **button_style,image=bg_img_time,compound=tkinter.LEFT)
-schedule_button.place(x=65, y=285) # Position (x=35, y=370)
+schedule_button.place(x=65, y=250) # Position (x=35, y=370)
 
 grades_button = ctk.CTkButton(menu_frame, text="Notes", command=on_grades_click, **button_style,image=bg_img_notes,compound=tkinter.LEFT)
-grades_button.place(x=65, y=465)# Position (x=35, y=430)
+grades_button.place(x=65, y=430)# Position (x=35, y=430)
 
-messages_button = ctk.CTkButton(menu_frame, text="Validation des comptes", command=on_messages_click, **button_style,image=bg_img_user_profil,compound=tkinter.LEFT)
-messages_button.place(x=65, y=225) # Position (x=35, y=490)
+  # Position (x=35, y=490)
 
 
 settings_button = ctk.CTkButton(menu_frame,text="log out", command=on_settings_click, **logout_button_style,image=bg_img_logout,compound=tkinter.LEFT)
