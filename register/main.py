@@ -18,7 +18,8 @@ def create_db():
         username TEXT NOT NULL,
         email TEXT NOT NULL,
         password TEXT NOT NULL,
-        image BLOB
+        image BLOB,
+        validation BOOLEAN NOT NULL DEFAULT 0
     )
     ''')
     conn.commit()

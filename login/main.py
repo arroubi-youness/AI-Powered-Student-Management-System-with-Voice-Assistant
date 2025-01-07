@@ -22,10 +22,27 @@ def on_leave(event):
 def login_user(email, password):
     conn = sqlite3.connect("../register/users.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE email = ? AND password = ?", (email, password))
+
+
+    cursor.execute("""
+        SELECT validation 
+        FROM users 
+        WHERE email = ? AND password = ?
+    """, (email, password))
+
     user = cursor.fetchone()
     conn.close()
-    return user is not None
+
+
+    if not user:
+        return "2"
+
+
+    if user[0] == 0:
+        return "1"
+
+
+    return "3"
 
 def handle_login():
     email = usrname_entry.get()
@@ -35,8 +52,10 @@ def handle_login():
         print("Veuillez remplir tous les champs.")
         return
 
-    if login_user(email, password):
+    if login_user(email, password)=="3":
         print("Connexion réussie !")
+    elif login_user(email, password)=="1":
+        print("Le compte n'est pas activé. Veuillez contacter l'administrateur.")
     else:
         print("Identifiants incorrects.")
 
