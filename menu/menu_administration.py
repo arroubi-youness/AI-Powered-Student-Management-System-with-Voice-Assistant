@@ -3,6 +3,7 @@ import tkinter
 import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image, ImageTk, ImageDraw
+import sqlite3
 
 
 ctk.set_appearance_mode("System")
@@ -19,10 +20,111 @@ def on_course_click():
     content_label = ctk.CTkLabel(content_frame, text="Gestion des cours", font=("Helvetica", 16))
     content_label.place(relx=0.5, rely=0.5, anchor="center")
 
-def on_schedule_click():
+
+import sqlite3
+import customtkinter as ctk
+
+def validation():
+    def update_account_status(user_id, status):
+        conn = sqlite3.connect("../register/users.db")
+        cursor = conn.cursor()
+        cursor.execute("UPDATE users SET validation = ? WHERE id = ?", (status, user_id))
+        conn.commit()
+        conn.close()
+        load_users()
+
+    def load_users():
+        for widget in content_frame.winfo_children():
+            widget.destroy()
+
+        title_label = ctk.CTkLabel(
+            content_frame,
+            text="Validation des comptes utilisateurs",
+            font=("Helvetica", 20, "bold"),
+            text_color="black",
+        )
+        title_label.place(x=20, y=20)
+
+        conn = sqlite3.connect("../register/users.db")
+        cursor = conn.cursor()
+        cursor.execute("SELECT id, username, email, validation FROM users")
+        users = cursor.fetchall()
+        conn.close()
+
+        if not users:
+            empty_label = ctk.CTkLabel(
+                content_frame,
+                text="Aucun utilisateur trouvé.",
+                font=("Helvetica", 14),
+                text_color="gray",
+            )
+            empty_label.place(x=20, y=70)
+            return
+
+
+        y_position = 80
+
+
+        for user in users:
+            user_id, username, email, V= user
+            if V:
+                status_text = "✔ Validé"
+                status_color = "green"
+                frame_color = "#d4edda"
+            else:
+                status_text = "✘ Non validé"
+                status_color = "red"
+                frame_color = "#f8d7da"
+
+
+
+            user_frame = ctk.CTkFrame(content_frame, width=680, height=100, corner_radius=10, fg_color=frame_color)
+            user_frame.place(x=20, y=y_position)
+
+
+            info_label = ctk.CTkLabel(
+                user_frame,
+                text=f"{username}",
+                font=("Helvetica", 16),
+                anchor="w",
+            )
+            info_label.place(x=20, y=20)
+
+
+            status_label = ctk.CTkLabel(
+                user_frame,
+                text=status_text,
+                font=("Helvetica", 14),
+                text_color=status_color,
+            )
+            status_label.place(x=580, y=20)
+
+            activate_button = ctk.CTkButton(
+                user_frame,
+                text="Activer",
+                width=100,
+                command=lambda uid=user_id: update_account_status(uid, 1),
+            )
+            activate_button.place(x=430, y=60)
+
+            deactivate_button = ctk.CTkButton(
+                user_frame,
+                text="Désactiver",
+                width=100,
+                fg_color="red",
+                hover_color="darkred",
+                command=lambda uid=user_id: update_account_status(uid, 0),
+            )
+            deactivate_button.place(x=570, y=60)
+
+
+            y_position += 120
+
+
     clear_content()
-    content_label = ctk.CTkLabel(content_frame, text="Gestion de l'emploi du temps", font=("Helvetica", 16))
-    content_label.place(relx=0.5, rely=0.5, anchor="center")
+    load_users()
+
+
 
 def on_grades_click():
     clear_content()
@@ -92,7 +194,7 @@ else:
 
 # Titre de l'application dans le menu
 title_label = ctk.CTkLabel(menu_frame, text="OULAID MOHAMMED", font=("Helvetica", 18, "bold"), fg_color="transparent",text_color="white")
-title_label.place(x=76, y=170)  # Position fixe pour le titre (x=50, y=200)
+title_label.place(x=76, y=170)
 
 # Boutons du menu (style moderne)
 button_style = {"font": ("Helvetica", 14, "bold"),"anchor":"w", "width": 200, "height": 40, "corner_radius": 10,"fg_color": "transparent","text_color":"white"}
@@ -121,10 +223,10 @@ course_button = ctk.CTkButton(menu_frame, text="Voice Assitant", command=on_cour
 course_button.place(x=65, y=470)    # Position (x=35, y=250)
  # Position (x=35, y=310)
 
-schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=on_schedule_click, **button_style,image=bg_img_time,compound=tkinter.LEFT)
+schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=validation, **button_style,image=bg_img_time,compound=tkinter.LEFT)
 schedule_button.place(x=65, y=410)# Position (x=35, y=370)
 
-schedule_button = ctk.CTkButton(menu_frame, text="Validation des comptes", command=on_schedule_click, **button_style,image=bg_img_time,compound=tkinter.LEFT)
+schedule_button = ctk.CTkButton(menu_frame, text="Validation des comptes", command=validation, **button_style,image=bg_img_time,compound=tkinter.LEFT)
 schedule_button.place(x=65, y=230)
 
 
