@@ -43,7 +43,11 @@ def validation():
             font=("Helvetica", 20, "bold"),
             text_color="black",
         )
-        title_label.place(x=200, y=20)
+        title_label.pack(pady=10)
+
+        # Scrollable frame for user list
+        scrollable_frame = ctk.CTkScrollableFrame(content_frame, width=680, height=500)
+        scrollable_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         conn = sqlite3.connect("../register/users.db")
         cursor = conn.cursor()
@@ -53,21 +57,17 @@ def validation():
 
         if not users:
             empty_label = ctk.CTkLabel(
-                content_frame,
+                scrollable_frame,
                 text="Aucun utilisateur trouvé.",
                 font=("Helvetica", 14),
                 text_color="gray",
             )
-            empty_label.place(x=20, y=70)
+            empty_label.pack(pady=10)
             return
 
-
-        y_position = 80
-
-
         for user in users:
-            user_id, username, email, V= user
-            if V:
+            user_id, username, email, validated = user
+            if validated:
                 status_text = "✔ Validé"
                 status_color = "green"
                 frame_color = "#d4edda"
@@ -76,20 +76,16 @@ def validation():
                 status_color = "red"
                 frame_color = "#f8d7da"
 
-
-
-            user_frame = ctk.CTkFrame(content_frame, width=680, height=100, corner_radius=10, fg_color=frame_color)
-            user_frame.place(x=20, y=y_position)
-
+            user_frame = ctk.CTkFrame(scrollable_frame, width=650, height=100, corner_radius=10, fg_color=frame_color)
+            user_frame.pack(pady=10, padx=10)
 
             info_label = ctk.CTkLabel(
                 user_frame,
-                text=f"{username}",
+                text=f"{username} ",
                 font=("Helvetica", 16),
                 anchor="w",
             )
             info_label.place(x=20, y=20)
-
 
             status_label = ctk.CTkLabel(
                 user_frame,
@@ -97,7 +93,7 @@ def validation():
                 font=("Helvetica", 14),
                 text_color=status_color,
             )
-            status_label.place(x=580, y=20)
+            status_label.place(x=500, y=20)
 
             activate_button = ctk.CTkButton(
                 user_frame,
@@ -115,14 +111,11 @@ def validation():
                 hover_color="darkred",
                 command=lambda uid=user_id: update_account_status(uid, 0),
             )
-            deactivate_button.place(x=570, y=60)
-
-
-            y_position += 120
-
+            deactivate_button.place(x=540, y=60)
 
     clear_content()
     load_users()
+
 
 
 

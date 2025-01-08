@@ -396,11 +396,8 @@ def on_schedule_click():
 
 
 def get_modules(semester):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
     cursor.execute('SELECT module_name FROM modules WHERE semester = ?', (semester,))
     modules = cursor.fetchall()
-    conn.close()
     return [module[0] for module in modules]
 def update_module_menu(event=None):
 
@@ -564,15 +561,11 @@ def display_users_with_grades(users, module,module_id):
             user_id = user[0]
             grade = grade_inputs[i].get()
             if grade:
-
-                conn = sqlite3.connect('users.db')
-                cursor = conn.cursor()
                 cursor.execute(''' 
                     INSERT INTO notes (iduser, idmodule, note) 
                     VALUES (?, ?, ?)
                 ''', (user_id, module_id, grade))
                 conn.commit()
-                conn.close()
 
 
     save_button = ctk.CTkButton(
@@ -580,8 +573,7 @@ def display_users_with_grades(users, module,module_id):
     )
     save_button.grid(row=1,column=0)
 def get_users_by_module(semester, module_name):
-    conn = sqlite3.connect('users.db')
-    cursor = conn.cursor()
+
 
     # Fetch the id of the module
     cursor.execute('''
@@ -593,7 +585,6 @@ def get_users_by_module(semester, module_name):
 
     if module_data is None:
         print(f"No module found with the name '{module_name}'.")
-        conn.close()
         return []
 
     module_id = module_data[0]  # Extract the module id
@@ -605,7 +596,6 @@ def get_users_by_module(semester, module_name):
        WHERE level = ?
     ''', (semester,))
     users = cursor.fetchall()
-    conn.close()
 
     # Call the display function with users and module id
     display_users_with_grades(users, module_name, module_id)
@@ -656,7 +646,6 @@ def upload_image(content_frame):
         ''', (image, semester))
 
         conn.commit()
-        conn.close()
 
     # Allow user to select an image file
     file_path = filedialog.askopenfilename(
