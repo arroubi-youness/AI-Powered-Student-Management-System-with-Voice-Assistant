@@ -43,7 +43,7 @@ def validation():
             font=("Helvetica", 20, "bold"),
             text_color="black",
         )
-        title_label.place(x=20, y=20)
+        title_label.place(x=200, y=20)
 
         conn = sqlite3.connect("../register/users.db")
         cursor = conn.cursor()
