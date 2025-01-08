@@ -79,7 +79,7 @@ def on_schedule_click():
     get_users_button = ctk.CTkButton(
         frame1,
         font=("Arial", 12, "bold"),
-        text="Upload Emploi",
+        text="Download Emploi",
         fg_color="#54C392",image=bg_img_user,compound=tkinter.LEFT,
         hover_color="#347928",
         command=lambda: download_image(semester_menu_empoli.get()))
