@@ -34,17 +34,17 @@ def download_image(semester_menu):
         result = cursor.fetchone()
 
         if result:
-            # Blob data is the first column in the result
+
             image_blob = result[0]
 
-            # Prompt the user to select a file location to save the image
+
             save_path = filedialog.asksaveasfilename(
                 defaultextension=".png",
                 filetypes=[("PNG files", "*.png"), ("JPEG files", "*.jpg"), ("All files", "*.*")]
             )
 
             if save_path:
-                # Write the blob data to the selected file
+
                 with open(save_path, 'wb') as file:
                     file.write(image_blob)
                 print(f"Image saved successfully to {save_path}")
@@ -74,7 +74,7 @@ def on_schedule_click():
     semester_menu_empoli = ctk.CTkOptionMenu(frame1, values=["S1", "S2", "S3", "S4"])
     semester_menu_empoli.place(x=70, y=40)
 
-    bg_img_user = ctk.CTkImage(dark_image=Image.open("menu_icon/upload-regular-24.png"))
+    bg_img_user = ctk.CTkImage(dark_image=Image.open("menu_icon/download-regular-24.png"))
 
     get_users_button = ctk.CTkButton(
         frame1,
