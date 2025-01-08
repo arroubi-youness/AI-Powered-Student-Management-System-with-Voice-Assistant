@@ -6,8 +6,7 @@ import customtkinter as ctk
 from PIL import Image, ImageTk, ImageDraw
 
 
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
+
 
 
 def on_student_click():

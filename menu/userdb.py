@@ -26,7 +26,7 @@ def generate_fake_user():
     username = faker.user_name()
     email = faker.email()
     password = faker.password()
-    image = None  # Placeholder for a binary image, set to None
+    image = faker.image()  # Placeholder for a binary image, set to None
     level = random.choice(['S1', 'S2', 'S3', 'S4'])  # Randomly assign a level
     return username, email, password, image, level
 
