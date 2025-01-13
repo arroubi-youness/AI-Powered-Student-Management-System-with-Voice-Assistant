@@ -6,9 +6,277 @@ from PIL import Image, ImageTk, ImageDraw
 import sqlite3
 
 
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
 
+def display_teachers():
+    conn = sqlite3.connect("../register/users.db")
+    cursor = conn.cursor()
+
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+    frame = ctk.CTkFrame(
+        content_frame,
+        fg_color="#D2E0FB",
+        bg_color="#F0F0F0",
+        corner_radius=15,
+        height=550,
+        width=700
+    )
+    frame.grid(row=0, column=0, padx=30, pady=20)
+
+    canvas = ctk.CTkCanvas(frame, width=670, height=570)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ctk.CTkScrollbar(frame, orientation="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    content_frame_in_canvas = ctk.CTkFrame(canvas)
+    canvas.create_window((0, 0), window=content_frame_in_canvas, anchor="nw")
+
+    title_label = ctk.CTkLabel(
+        content_frame_in_canvas,
+        text="Teachers List",
+        font=("Helvetica", 14, "bold"),
+        text_color="#33aef4",
+    )
+    title_label.pack(pady=10)
+
+    header_frame = ctk.CTkFrame(content_frame_in_canvas, fg_color="#33aef4")
+    header_frame.pack(fill="x", padx=5, pady=5)
+
+    headers = ["ID", "Name", "Semester", "Module", "Remove"]
+    for header in headers:
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text=header,
+            font=("Helvetica", 12, "bold"),
+            text_color="white",
+            anchor="center",
+        )
+        header_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+    cursor.execute("SELECT id, fullName, semester, module FROM Teachers")
+    teachers = cursor.fetchall()
+
+    for teacher in teachers:
+        teacher_id, name, semester, module = teacher
+
+        row_frame = ctk.CTkFrame(content_frame_in_canvas)
+        row_frame.pack(fill="x", padx=5, pady=2)
+
+        id_label = ctk.CTkLabel(
+            row_frame,
+            text=str(teacher_id),
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        id_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+        name_label = ctk.CTkLabel(
+            row_frame,
+            text=name,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        name_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+        semester_label = ctk.CTkLabel(
+            row_frame,
+            text=semester,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        semester_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+        module_label = ctk.CTkLabel(
+            row_frame,
+            text=module,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        module_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+        delete_button = ctk.CTkButton(
+            row_frame,
+            text="Delete",
+            width=95,
+            fg_color="RED",
+            command=lambda sid=teacher_id: delete_teacher(sid)
+        )
+        delete_button.pack(side="left", padx=5, pady=5, fill="x")
+
+    canvas.update_idletasks()
+
+
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+
+def delete_teacher(teacher_id):
+    # Show confirmation dialog
+    confirm = messagebox.askyesno(
+        "Confirm Deletion",
+        "Are you sure you want to delete this teacher?"
+    )
+
+
+    if confirm:
+        conn = sqlite3.connect("../register/users.db")
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM Teachers WHERE id = ?", (teacher_id,))
+        conn.commit()
+        cursor.close()
+        display_teachers()
+
+
+
+def delete_student(student_id):
+    conn = sqlite3.connect("../register/users.db")
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM Teachers WHERE id = ?", (student_id,))
+    conn.commit()
+    display_teachers()  # Refresh the display
+
+
+
+def display_students():
+    conn = sqlite3.connect("../register/users.db")
+    cursor = conn.cursor()
+
+    for widget in content_frame.winfo_children():
+        widget.destroy()
+
+
+    frame = ctk.CTkFrame(
+        content_frame,
+        fg_color="#D2E0FB",
+        bg_color="#F0F0F0",
+        corner_radius=15,
+        height=550,
+        width=700
+    )
+    frame.grid(row=0, column=0, padx=30, pady=20)
+
+
+    canvas = ctk.CTkCanvas(frame, width=670, height=570)
+    canvas.grid(row=0, column=0, sticky="nsew")
+
+    scrollbar = ctk.CTkScrollbar(frame, orientation="vertical", command=canvas.yview)
+    scrollbar.grid(row=0, column=1, sticky="ns")
+
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+
+    content_frame_in_canvas = ctk.CTkFrame(canvas)
+    canvas.create_window((0, 0), window=content_frame_in_canvas, anchor="nw")
+
+
+    title_label = ctk.CTkLabel(
+        content_frame_in_canvas,
+        text="Student List",
+        font=("Helvetica", 14, "bold"),
+        text_color="#33aef4",
+    )
+    title_label.pack(pady=10)
+
+
+    header_frame = ctk.CTkFrame(content_frame_in_canvas, fg_color="#33aef4")
+    header_frame.pack(fill="x", padx=5, pady=5)
+
+    headers = ["ID", "Name", "Email", "Level","Remove"]
+    for header in headers:
+        header_label = ctk.CTkLabel(
+            header_frame,
+            text=header,
+            font=("Helvetica", 12, "bold"),
+            text_color="white",
+            anchor="center",
+        )
+        header_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+
+    cursor.execute("SELECT id, username, email, level FROM users")
+    students = cursor.fetchall()
+
+
+    for student in students:
+        student_id, name, email, level = student
+
+        row_frame = ctk.CTkFrame(content_frame_in_canvas)
+        row_frame.pack(fill="x", padx=5, pady=2)
+
+
+        id_label = ctk.CTkLabel(
+            row_frame,
+            text=str(student_id),
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        id_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+
+        name_label = ctk.CTkLabel(
+            row_frame,
+            text=name,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        name_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+
+        email_label = ctk.CTkLabel(
+            row_frame,
+            text=email,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        email_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+
+        level_label = ctk.CTkLabel(
+            row_frame,
+            text=level,
+            font=("Helvetica", 12),
+            anchor="center",
+            width=120
+        )
+        level_label.pack(side="left", padx=5, pady=5, expand=True, fill="x")
+
+        grade_button = ctk.CTkButton(
+            row_frame,
+            text="Delete",
+            width=90,
+           fg_color="RED",
+            command=lambda sid=student_id: delete_student(sid)
+        )
+        grade_button.pack(side="left", padx=5, pady=5, fill="x")
+
+    canvas.update_idletasks()
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+    def delete_student(student_id):
+
+        confirm = messagebox.askyesno(
+            "Confirm Deletion",
+            "Are you sure you want to delete this student?"
+        )
+
+
+        if confirm:
+            conn = sqlite3.connect("../register/users.db")
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM users WHERE id = ?", (student_id,))
+            conn.commit()
+            cursor.close()
+            display_students()
 
 def on_student_click():
     clear_content()
@@ -21,8 +289,7 @@ def on_course_click():
     content_label.place(relx=0.5, rely=0.5, anchor="center")
 
 
-import sqlite3
-import customtkinter as ctk
+
 
 def validation():
     def update_account_status(user_id, status):
@@ -43,7 +310,11 @@ def validation():
             font=("Helvetica", 20, "bold"),
             text_color="black",
         )
-        title_label.place(x=20, y=20)
+        title_label.pack(pady=10)
+
+        # Scrollable frame for user list
+        scrollable_frame = ctk.CTkScrollableFrame(content_frame, width=680, height=500)
+        scrollable_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
         conn = sqlite3.connect("../register/users.db")
         cursor = conn.cursor()
@@ -53,21 +324,17 @@ def validation():
 
         if not users:
             empty_label = ctk.CTkLabel(
-                content_frame,
+                scrollable_frame,
                 text="Aucun utilisateur trouvé.",
                 font=("Helvetica", 14),
                 text_color="gray",
             )
-            empty_label.place(x=20, y=70)
+            empty_label.pack(pady=10)
             return
 
-
-        y_position = 80
-
-
         for user in users:
-            user_id, username, email, V= user
-            if V:
+            user_id, username, email, validated = user
+            if validated:
                 status_text = "✔ Validé"
                 status_color = "green"
                 frame_color = "#d4edda"
@@ -76,20 +343,16 @@ def validation():
                 status_color = "red"
                 frame_color = "#f8d7da"
 
-
-
-            user_frame = ctk.CTkFrame(content_frame, width=680, height=100, corner_radius=10, fg_color=frame_color)
-            user_frame.place(x=20, y=y_position)
-
+            user_frame = ctk.CTkFrame(scrollable_frame, width=650, height=100, corner_radius=10, fg_color=frame_color)
+            user_frame.pack(pady=10, padx=10)
 
             info_label = ctk.CTkLabel(
                 user_frame,
-                text=f"{username}",
+                text=f"{username} ",
                 font=("Helvetica", 16),
                 anchor="w",
             )
             info_label.place(x=20, y=20)
-
 
             status_label = ctk.CTkLabel(
                 user_frame,
@@ -97,7 +360,7 @@ def validation():
                 font=("Helvetica", 14),
                 text_color=status_color,
             )
-            status_label.place(x=580, y=20)
+            status_label.place(x=500, y=20)
 
             activate_button = ctk.CTkButton(
                 user_frame,
@@ -115,14 +378,11 @@ def validation():
                 hover_color="darkred",
                 command=lambda uid=user_id: update_account_status(uid, 0),
             )
-            deactivate_button.place(x=570, y=60)
-
-
-            y_position += 120
-
+            deactivate_button.place(x=540, y=60)
 
     clear_content()
     load_users()
+
 
 
 
@@ -217,21 +477,21 @@ bg_img_logout=ctk.CTkImage(dark_image=Image.open("menu_icon/log-out-circle-regul
 
 
 # Position fixe pour chaque bouton
-student_button = ctk.CTkButton(menu_frame, text="Profs Management", command=on_student_click, font=("Helvetica", 14, "bold"), width=200, anchor="w",height=40, corner_radius= 10,fg_color= "transparent",text_color="white",image=bg_img_user,compound=tkinter.LEFT)
-student_button.place(x=65, y=350)
+student_button = ctk.CTkButton(menu_frame, text="Profs Management", command=display_teachers, font=("Helvetica", 14, "bold"), width=200, anchor="w",height=40, corner_radius= 10,fg_color= "transparent",text_color="white",image=bg_img_user,compound=tkinter.LEFT)
+student_button.place(x=65, y=370)
 course_button = ctk.CTkButton(menu_frame, text="Voice Assitant", command=on_course_click, **button_style,image=bg_img_book,compound=tkinter.LEFT)
-course_button.place(x=65, y=470)    # Position (x=35, y=250)
+course_button.place(x=65, y=430)    # Position (x=35, y=250)
  # Position (x=35, y=310)
 
-schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=validation, **button_style,image=bg_img_time,compound=tkinter.LEFT)
-schedule_button.place(x=65, y=410)# Position (x=35, y=370)
+# schedule_button = ctk.CTkButton(menu_frame, text="Emploi du temps", command=validation, **button_style,image=bg_img_time,compound=tkinter.LEFT)
+# schedule_button.place(x=65, y=470)# Position (x=35, y=370)
 
 schedule_button = ctk.CTkButton(menu_frame, text="Validation des comptes", command=validation, **button_style,image=bg_img_time,compound=tkinter.LEFT)
-schedule_button.place(x=65, y=230)
+schedule_button.place(x=65, y=250)
 
 
-grades_button = ctk.CTkButton(menu_frame, text="Student Management", command=on_grades_click, **button_style,image=bg_img_notes,compound=tkinter.LEFT)
-grades_button.place(x=65, y=290)# Position (x=35, y=430)
+grades_button = ctk.CTkButton(menu_frame, text="Student Management", command=display_students, **button_style,image=bg_img_notes,compound=tkinter.LEFT)
+grades_button.place(x=65, y=310)# Position (x=35, y=430)
 
   # Position (x=35, y=490)
 

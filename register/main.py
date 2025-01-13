@@ -19,11 +19,11 @@ def create_db():
         email TEXT NOT NULL,
         password TEXT NOT NULL,
         image BLOB,
-        validation BOOLEAN NOT NULL DEFAULT 0
+        validation BOOLEAN NOT NULL DEFAULT 0,
+        level TEXT NOT NULL
     )
     ''')
     conn.commit()
-    conn.close()
 
 
 def register_user(username, email, password, image_path=None):
@@ -42,8 +42,8 @@ def register_user(username, email, password, image_path=None):
     face_encoding_blob = sqlite3.Binary(np.array(face_encoding, dtype=np.float32).tobytes())
 
     cursor.execute('''
-    INSERT INTO users (username, email, password, image) VALUES (?, ?, ?, ?)
-    ''', (username, email, password, face_encoding_blob))
+    INSERT INTO users (username, email, password, image,level) VALUES (?, ?, ?, ?,?)
+    ''', (username, email, password, face_encoding_blob,"S1"))
 
     conn.commit()
     conn.close()
