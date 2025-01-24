@@ -18,6 +18,7 @@ def display_teachers():
         content_frame,
         fg_color="#D2E0FB",
         bg_color="#F0F0F0",
+
         corner_radius=15,
         height=550,
         width=700
